@@ -1,304 +1,185 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>🥕 당 - 토끼 숙제 관리자</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥕 당 - 숙제 관리자</title>
 
-<!-- Firebase App & Firestore -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <style>
     body {
-        font-family: 'Pretendard', sans-serif;
         background: linear-gradient(180deg, #ffe9d4 0%, #fff8f0 100%);
-        padding: 20px;
+        font-family: Pretendard, sans-serif;
         margin: 0;
+        padding: 20px;
     }
 
-    .header {
+    h1 {
         text-align: center;
-        margin-bottom: 22px;
-    }
-
-    .title {
-        font-size: 24px;
-        font-weight: 700;
         color: #ff8a3c;
+        margin-bottom: 10px;
     }
 
     .tag {
-        display: inline-block;
-        margin-top: 6px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: #ffb37a;
-        color: #fff;
+        text-align: center;
         font-size: 13px;
-    }
-
-    .add-box {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 14px;
-    }
-
-    .add-input {
-        flex: 1;
-        padding: 10px 12px;
-        border-radius: 14px;
-        border: 1px solid #ffd1a4;
-        font-size: 14px;
-        background: #fffdf8;
-    }
-
-    .add-btn {
-        padding: 10px 14px;
-        border-radius: 14px;
-        border: none;
-        background: #ff8a3c;
         color: #fff;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    .item {
-        background: #ffffff;
-        margin-bottom: 12px;
-        padding: 13px 16px;
-        border-radius: 18px;
-        box-shadow: 0 3px 10px rgba(255, 150, 95, 0.25);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .item-left {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .status {
-        font-size: 12px;
-        margin-top: 4px;
-    }
-
-    .done {
-        color: #ff8a3c;
-        font-weight: 600;
-    }
-
-    .not-done {
-        color: #bbb;
-    }
-
-    .delete-btn {
-        border: none;
-        background: #ffe1cc;
-        color: #ff6b3b;
-        padding: 6px 10px;
+        background: #ffb37a;
+        padding: 4px 12px;
+        display: inline-block;
         border-radius: 999px;
-        font-size: 12px;
+        margin-bottom: 20px;
+        margin-left: 50%;
+        transform: translateX(-50%);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fffdf8;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(255, 150, 95, 0.25);
+    }
+
+    th {
+        background: #ffb37a;
+        padding: 10px;
+        color: #fff;
         font-weight: 600;
     }
 
-    .section-title {
-        margin-top: 22px;
-        margin-bottom: 6px;
-        font-size: 15px;
-        font-weight: 600;
-        color: #ff8a3c;
+    td {
+        border-bottom: 1px solid #ffe1cc;
+        padding: 10px;
+        text-align: center;
+    }
+
+    input[type="text"] {
+        padding: 6px;
+        border-radius: 8px;
+        border: 1px solid #ffd1a4;
+        width: 90%;
     }
 
     textarea {
-        width: 100%;
-        min-height: 90px;
-        border-radius: 14px;
+        width: 95%;
+        min-height: 60px;
         border: 1px solid #ffd1a4;
-        padding: 10px 12px;
+        border-radius: 8px;
+        padding: 6px;
         resize: vertical;
-        font-size: 14px;
-        background: #fffdf8;
-        box-sizing: border-box;
     }
 
-    .save-btn {
-        margin-top: 8px;
-        width: 100%;
-        padding: 10px;
+    .add-box {
+        margin: 10px 0 20px 0;
+        display: flex;
+        gap: 10px;
+    }
+
+    button {
+        padding: 10px 14px;
         border: none;
-        border-radius: 999px;
+        border-radius: 10px;
         background: #ff8a3c;
-        color: #fff;
+        color: white;
         font-weight: 600;
-        font-size: 15px;
+        cursor: pointer;
     }
 
-    .reset-btn {
-        margin-top: 12px;
-        width: 100%;
-        padding: 9px;
-        border: none;
-        border-radius: 999px;
+    .delete-btn {
         background: #ffe1cc;
         color: #ff6b3b;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .user-memo-view {
-        background: #fffdf8;
-        border-radius: 14px;
-        padding: 10px 12px;
-        font-size: 14px;
-        color: #555;
-        border: 1px dashed #ffd1a4;
-        white-space: pre-wrap;
-        min-height: 60px;
-        box-sizing: border-box;
-    }
-
-    .small {
         font-size: 12px;
-        color: #999;
-        margin-top: 4px;
+        padding: 6px 10px;
     }
 </style>
-
 </head>
+
 <body>
 
-<div class="header">
-    <div class="title">🦊 당 - 숙제 관리자 화면</div>
-    <div class="tag">관리자 ID: 당 (주황)</div>
-</div>
+<h1>🥕 당 - 숙제 관리자</h1>
+<div class="tag">관리자 ID: 당 (주황)</div>
 
+<!-- 항목 추가 -->
 <div class="add-box">
-    <input id="newItemText" class="add-input" placeholder="새 숙제 항목 입력 (예: 영어 단어 20개)" />
-    <button class="add-btn" onclick="addItem()">추가</button>
+    <input type="text" id="newField" placeholder="새 항목 이름 (예: 방셀)">
+    <button onclick="addField()">항목 추가</button>
 </div>
 
-<div id="list"></div>
+<!-- 행 추가 -->
+<div class="add-box">
+    <input type="text" id="newNick" placeholder="닉네임">
+    <input type="text" id="newID" placeholder="아이디">
+    <button onclick="addRow()">행 추가</button>
+</div>
 
-<button class="reset-btn" onclick="resetAll()">모든 숙제 미완료로 초기화</button>
-
-<div class="section-title">🥕 당(관리자)의 메모</div>
-<textarea id="adminMemo" placeholder="관리자 메모를 적어주세요 🧡"></textarea>
-<button class="save-btn" onclick="saveAdminMemo()">관리자 메모 저장</button>
-
-<div class="section-title" style="margin-top: 20px;">🐰 낭(사용자)의 메모</div>
-<div id="userMemoView" class="user-memo-view">(아직 사용자가 메모를 남기지 않았어요)</div>
-<div class="small">※ 읽기 전용</div>
+<table id="table">
+    <thead id="thead"></thead>
+    <tbody id="tbody"></tbody>
+</table>
 
 <script>
-    // Firebase 설정
-    const firebaseConfig = {
-        apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
-        authDomain: "daily-checklist-91e5a.firebaseapp.com",
-        projectId: "daily-checklist-91e5a",
-        storageBucket: "daily-checklist-91e5a.firebasestorage.app",
-        messagingSenderId: "66394691958",
-        appId: "1:66394691958:web:cf91f295456a2e10d18257",
-        measurementId: "G-87WK4N4EGH"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
+    authDomain: "daily-checklist-91e5a.firebaseapp.com",
+    projectId: "daily-checklist-91e5a",
+    storageBucket: "daily-checklist-91e5a.firebasestorage.app",
+    messagingSenderId: "66394691958",
+    appId: "1:66394691958:web:cf91f295456a2e10d18257",
+    measurementId: "G-87WK4N4EGH"
+};
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const docRef = db.collection("checklist").doc("낭");
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    // 실시간 데이터 구독
-    docRef.onSnapshot((doc) => {
-        if (!doc.exists) {
-            docRef.set({ items: [], userMemo: "", adminMemo: "" });
-            return;
-        }
+// config 컬렉션: 관리자 항목저장
+const configRef = db.collection("config").doc("checklist");
 
-        const data = doc.data();
-        renderItems(data.items || []);
-        renderMemos(data.adminMemo || "", data.userMemo || "");
-    });
+// spaces 컬렉션: 행 저장
+const spacesRef = db.collection("spaces");
 
-    // 항목 렌더링
-    function renderItems(items) {
-        const container = document.getElementById("list");
-        container.innerHTML = "";
+let fields = [];
 
-        items.forEach((item, index) => {
-            const div = document.createElement("div");
-            div.className = "item";
-
-            const status = item.done ? 
-                '<span class="done">💗 완료</span>' : 
-                '<span class="not-done">⏳ 미완료</span>';
-
-            div.innerHTML = `
-                <div class="item-left">
-                    <span>${item.text}</span>
-                    <div class="status">${status}</div>
-                </div>
-                <button class="delete-btn" onclick="deleteItem(${index})">삭제</button>
-            `;
-
-            container.appendChild(div);
-        });
+configRef.onSnapshot(doc => {
+    if (!doc.exists) {
+        configRef.set({ fields: [] });
+        return;
     }
+    fields = doc.data().fields;
+    renderTable();
+});
 
-    // 메모 렌더링
-    function renderMemos(adminMemo, userMemo) {
-        document.getElementById("adminMemo").value = adminMemo || "";
-        document.getElementById("userMemoView").textContent =
-            userMemo || "(아직 사용자가 메모를 남기지 않았어요)";
-    }
+spacesRef.onSnapshot(snapshot => {
+    renderTable();
+});
 
-    // 항목 추가
-    function addItem() {
-        const text = document.getElementById("newItemText").value.trim();
-        if (!text) return alert("숙제 내용을 입력해주세요!");
+function renderTable() {
+    const thead = document.getElementById("thead");
+    const tbody = document.getElementById("tbody");
 
-        docRef.get().then((doc) => {
+    thead.innerHTML = `
+        <tr>
+            <th>닉네임</th>
+            <th>아이디</th>
+            ${fields.map(f => `<th>${f}</th>`).join("")}
+            <th>메모</th>
+            <th>삭제</th>
+        </tr>
+    `;
+
+    tbody.innerHTML = "";
+
+    spacesRef.get().then(res => {
+        res.forEach(doc => {
             const data = doc.data();
-            const items = data.items || [];
-            items.push({ text, done: false });
-            docRef.update({ items });
+            const checks = data.checks || {};
 
-            document.getElementById("newItemText").value = "";
-        });
-    }
+            const row = document.createElement("tr");
 
-    // 항목 삭제
-    function deleteItem(index) {
-        if (!confirm("이 항목을 삭제하시겠어요?")) return;
-
-        docRef.get().then((doc) => {
-            const data = doc.data();
-            const items = data.items || [];
-            items.splice(index, 1);
-            docRef.update({ items });
-        });
-    }
-
-    // 전체 초기화
-    function resetAll() {
-        if (!confirm("모든 항목을 미완료로 초기화할까요?")) return;
-
-        docRef.get().then((doc) => {
-            const data = doc.data();
-            const items = data.items.map((item) => ({
-                ...item,
-                done: false
-            }));
-            docRef.update({ items });
-        });
-    }
-
-    // 관리자 메모 저장
-    function saveAdminMemo() {
-        const memo = document.getElementById("adminMemo").value;
-        docRef.update({ adminMemo: memo });
-        alert("관리자 메모가 저장되었습니다 🧡");
-    }
-</script>
-
-</body>
-</html>
+            row.innerHTML = `
+                <td><input value="${data.nickname}" onchange="updateSpace('${doc.id}', 'nickname', this.value)"></td>
+                <td><i
