@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🥕 당 - 숙제 관리자</title>
 
-<!-- Firebase -->
+<!-- Firebase compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -29,8 +29,8 @@
         color: #fff;
         background: #ffb37a;
         padding: 4px 12px;
-        display: inline-block;
         border-radius: 999px;
+        display: inline-block;
         margin-bottom: 20px;
         margin-left: 50%;
         transform: translateX(-50%);
@@ -39,16 +39,17 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        background: #fffdf8;
+        background: #ffffff;
         border-radius: 14px;
         overflow: hidden;
         box-shadow: 0 3px 10px rgba(255, 150, 95, 0.25);
+        margin-top: 20px;
     }
 
     th {
         background: #ffb37a;
         padding: 10px;
-        color: #fff;
+        color: white;
         font-weight: 600;
     }
 
@@ -67,17 +68,17 @@
 
     textarea {
         width: 95%;
-        min-height: 60px;
-        border: 1px solid #ffd1a4;
         border-radius: 8px;
+        border: 1px solid #ffd1a4;
         padding: 6px;
         resize: vertical;
+        min-height: 50px;
     }
 
     .add-box {
-        margin: 10px 0 20px 0;
         display: flex;
         gap: 10px;
+        margin: 10px 0;
     }
 
     button {
@@ -86,15 +87,15 @@
         border-radius: 10px;
         background: #ff8a3c;
         color: white;
-        font-weight: 600;
         cursor: pointer;
+        font-weight: 600;
     }
 
     .delete-btn {
         background: #ffe1cc;
         color: #ff6b3b;
-        font-size: 12px;
         padding: 6px 10px;
+        font-size: 12px;
     }
 </style>
 </head>
@@ -123,6 +124,7 @@
 </table>
 
 <script>
+/* 🔥 Firebase 설정 */
 const firebaseConfig = {
     apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
     authDomain: "daily-checklist-91e5a.firebaseapp.com",
@@ -132,18 +134,16 @@ const firebaseConfig = {
     appId: "1:66394691958:web:cf91f295456a2e10d18257",
     measurementId: "G-87WK4N4EGH"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// config 컬렉션: 관리자 항목저장
+/* 🔥 Firestore 참조 */
 const configRef = db.collection("config").doc("checklist");
-
-// spaces 컬렉션: 행 저장
 const spacesRef = db.collection("spaces");
 
 let fields = [];
 
+/* 항목(열) 변화 감지 */
 configRef.onSnapshot(doc => {
     if (!doc.exists) {
         configRef.set({ fields: [] });
@@ -153,10 +153,12 @@ configRef.onSnapshot(doc => {
     renderTable();
 });
 
-spacesRef.onSnapshot(snapshot => {
+/* 행(문서) 변화 감지 */
+spacesRef.onSnapshot(() => {
     renderTable();
 });
 
+/* 🔧 테이블 렌더링 */
 function renderTable() {
     const thead = document.getElementById("thead");
     const tbody = document.getElementById("tbody");
@@ -181,5 +183,74 @@ function renderTable() {
             const row = document.createElement("tr");
 
             row.innerHTML = `
-                <td><input value="${data.nickname}" onchange="updateSpace('${doc.id}', 'nickname', this.value)"></td>
-                <td><i
+                <td><input type="text" value="${data.nickname || ""}" onchange="update('${doc.id}', 'nickname', this.value)"></td>
+                <td><input type="text" value="${data.userid || ""}" onchange="update('${doc.id}', 'userid', this.value)"></td>
+
+                ${fields
+                    .map(f => `
+                        <td>
+                            <input type="checkbox" ${checks[f] ? "checked" : ""}
+                                onchange="updateCheck('${doc.id}', '${f}', this.checked)">
+                        </td>
+                    `)
+                    .join("")}
+
+                <td><textarea onchange="update('${doc.id}', 'memo', this.value)">${data.memo || ""}</textarea></td>
+
+                <td><button class="delete-btn" onclick="deleteRow('${doc.id}')">삭제</button></td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    });
+}
+
+/* 🔧 항목 추가 */
+function addField() {
+    const f = document.getElementById("newField").value.trim();
+    if (!f) return;
+
+    configRef.update({
+        fields: firebase.firestore.FieldValue.arrayUnion(f)
+    });
+
+    document.getElementById("newField").value = "";
+}
+
+/* 🔧 행 추가 */
+function addRow() {
+    const nick = document.getElementById("newNick").value.trim();
+    const id = document.getElementById("newID").value.trim();
+    if (!nick || !id) return;
+
+    spacesRef.add({
+        nickname: nick,
+        userid: id,
+        checks: {},
+        memo: ""
+    });
+
+    document.getElementById("newNick").value = "";
+    document.getElementById("newID").value = "";
+}
+
+/* 🔧 업데이트 */
+function update(docID, field, value) {
+    spacesRef.doc(docID).update({ [field]: value });
+}
+
+/* 🔧 체크 업데이트 */
+function updateCheck(docID, field, value) {
+    spacesRef.doc(docID).update({
+        [`checks.${field}`]: value
+    });
+}
+
+/* 🔧 행 삭제 */
+function deleteRow(docID) {
+    spacesRef.doc(docID).delete();
+}
+</script>
+
+</body>
+</html>
