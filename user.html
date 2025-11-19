@@ -426,7 +426,7 @@ function updateSpaceMemo(docId, value){
 
 /* 카드 삭제 (유저용) */
 function deleteSpace(docId){
-    if(!confirm("이 숙제 카드를 삭제할까요?")) return;
+    if(!confirm("이 숙제를 완료하셨나요?")) return;
     spacesRef.doc(docId).delete()
         .catch(()=>alert("삭제 중 오류가 발생했어요."));
 }
