@@ -4,422 +4,480 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🐰 낭 - 숙제 체크</title>
+
 <!-- Firebase compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <style>
-* { box-sizing:border-box; }
-body {
-background:#FFE5F4;
-font-family:-apple-system,BlinkMacSystemFont,"Pretendard",system-ui,sans-serif;
-margin:0; padding:16px; color:#4b3045;
-}
-h1 {
-text-align:center;
-color:#ff6fa8;
-margin:0 0 6px 0;
-font-size:22px;
-}
-.tag {
-text-align:center;
-font-size:12px;
-color:#fff;
-background:#ff9ac5;
-padding:4px 12px;
-border-radius:999px;
-display:inline-block;
-margin-left:50%;
-transform:translateX(-50%);
-margin-bottom:18px;
-}
-.card {
-background:#ffffff;
-padding:12px;
-border-radius:14px;
-box-shadow:0 3px 10px rgba(255,140,170,0.22);
-margin-bottom:16px;
-}
-.section-title {
-font-size:15px;
-font-weight:700;
-margin-bottom:8px;
-color:#ff6fa8;
-display:flex;
-align-items:center;
-gap:6px;
-}
-.section-title span.sub {
-font-size:12px;
-font-weight:400;
-color:#b05f86;
-}
-.input-small-label {
-font-size:12px;
-color:#884064;
-margin-bottom:4px;
-}
-textarea {
-width:100%;
-min-height:70px;
-border-radius:10px;
-border:1px solid #ffc3dd;
-padding:8px;
-resize:vertical;
-font-family:inherit;
-font-size:13px;
-background:#fff9fd;
-}
-button {
-padding:8px 14px;
-border:none;
-border-radius:999px;
-background:#ff6fa8;
-color:white;
-font-weight:600;
-cursor:pointer;
-font-size:13px;
-}
-button:active { transform:translateY(1px); }
-.btn-sub {
-background:#ffc6e0;
-color:#9e3c70;
-}
-.small-helper {
-font-size:11px;
-color:#a25a80;
-margin-top:4px;
-}
-/* 요약 테이블 */
-.summary-table {
-width:100%;
-border-collapse:collapse;
-font-size:12px;
-margin-top:4px;
-}
-.summary-table th,
-.summary-table td {
-border:1px solid #ffcfe4;
-padding:4px 6px;
-text-align:center;
-white-space:nowrap;
-}
-.summary-table th {
-background:#ffb7dc;
-font-weight:600;
-color:#ffffff;
-}
-.summary-label-cell {
-background:#ffe3f2;
-font-weight:600;
-color:#b24c7d;
-}
-.summary-table td.value-cell {
-background:#ffeef8;
-color:#b24c7d;
-}
-/* 숙제 카드 */
-.space-card {
-margin-bottom:10px;
-padding:10px;
-border-radius:12px;
-background:#fff9fe;
-border:1px solid #ffd7ef;
-box-shadow:0 2px 6px rgba(0,0,0,0.03);
-}
-.space-header {
-margin-bottom:8px;
-}
-.badge-nick {
-display:inline-block;
-padding:6px 12px;
-border-radius:999px;
-background:#ffcae6;
-color:#8b3158;
-font-size:13px;
-font-weight:600;
-margin-bottom:4px;
-}
-.badge-id {
-display:inline-flex;
-align-items:center;
-gap:6px;
-padding:4px 10px;
-border-radius:999px;
-background:#ffeaf5;
-color:#a44871;
-font-size:11px;
-}
-.badge-id button {
-padding:2px 8px;
-font-size:10px;
-border-radius:999px;
-background:#ff9ac5;
-color:#fff;
-}
-.space-fields {
-display:flex;
-flex-wrap:wrap;
-gap:6px;
-margin-top:6px;
-}
-.field-chip {
-display:inline-flex;
-align-items:center;
-gap:4px;
-padding:4px 8px;
-border-radius:999px;
-background:#ffe8f4;
-font-size:11px;
-}
-.field-chip input[type="checkbox"] {
-width:18px; height:18px;
-accent-color:#ff6fa8;
-margin:0;
-}
-.space-memo textarea {
-min-height:50px;
-font-size:12px;
-margin-top:6px;
-}
-@media (min-width:720px){
-body{ max-width:640px; margin:0 auto; }
-}
+    *{ box-sizing:border-box; }
+
+    body{
+        background:#FFE6F3;
+        font-family:-apple-system,BlinkMacSystemFont,"Pretendard",system-ui,sans-serif;
+        margin:0; padding:16px; color:#4b3045;
+    }
+
+    h1{
+        text-align:center;
+        color:#ff6fa8;
+        margin:0 0 6px 0;
+        font-size:22px;
+    }
+
+    .tag{
+        text-align:center;
+        font-size:12px;
+        color:#fff;
+        background:#ff9ac5;
+        padding:4px 12px;
+        border-radius:999px;
+        display:inline-block;
+        margin-left:50%;
+        transform:translateX(-50%);
+        margin-bottom:18px;
+    }
+
+    .card{
+        background:#ffffff;
+        padding:12px;
+        border-radius:14px;
+        box-shadow:0 3px 10px rgba(255,140,170,0.22);
+        margin-bottom:16px;
+    }
+
+    .section-title{
+        font-size:15px;
+        font-weight:700;
+        margin-bottom:8px;
+        color:#ff6fa8;
+        display:flex;
+        align-items:center;
+        gap:6px;
+    }
+
+    .section-title span.sub{
+        font-size:12px;
+        font-weight:400;
+        color:#b05b86;
+    }
+
+    .input-small-label{
+        font-size:12px;
+        color:#7a4765;
+        margin-bottom:4px;
+    }
+
+    textarea{
+        width:100%;
+        min-height:70px;
+        border-radius:10px;
+        border:1px solid #ffc2dd;
+        padding:8px;
+        resize:vertical;
+        font-family:inherit;
+        font-size:13px;
+        background:#fff7fb;
+    }
+
+    button{
+        padding:8px 14px;
+        border:none;
+        border-radius:999px;
+        background:#ff6fa8;
+        color:white;
+        font-weight:600;
+        cursor:pointer;
+        font-size:13px;
+    }
+    button:active{ transform:translateY(1px); }
+
+    .btn-save{
+        background:#ff6fa8;
+    }
+
+    .summary-table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:12px;
+        margin-top:4px;
+    }
+    .summary-table th,
+    .summary-table td{
+        border:1px solid #ffd3ea;
+        padding:4px 6px;
+        text-align:center;
+        white-space:nowrap;
+    }
+    .summary-table th{
+        background:#ffc7e4;
+        font-weight:600;
+        color:#993f6b;
+    }
+    .summary-label-cell{
+        background:#ffe3f2;
+        font-weight:600;
+    }
+
+    .space-card{
+        margin-bottom:10px;
+        padding:10px;
+        border-radius:12px;
+        background:#ffe9f6;
+        border:1px solid #ffd1ec;
+        box-shadow:0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .space-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:6px;
+        margin-bottom:6px;
+    }
+
+    .badge-nick{
+        font-size:13px;
+        font-weight:600;
+        padding:4px 10px;
+        border-radius:999px;
+        background:#ffcae7;
+        color:#8c325c;
+    }
+
+    .badge-id{
+        font-size:11px;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#fff2fa;
+        color:#a44071;
+        display:inline-flex;
+        align-items:center;
+        gap:4px;
+        margin-top:4px;
+    }
+
+    .badge-id button{
+        padding:2px 7px;
+        font-size:10px;
+        border-radius:999px;
+        background:#ff9ac5;
+        color:#fff;
+    }
+
+    .btn-delete-card{
+        background:#ffd0e7;
+        color:#d2477f;
+        font-size:11px;
+        padding:5px 10px;
+        display:inline-flex;
+        align-items:center;
+        gap:3px;
+    }
+
+    .space-fields{
+        display:flex;
+        flex-wrap:wrap;
+        gap:6px;
+        margin-top:6px;
+    }
+
+    .field-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:4px;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#fff3fb;
+        font-size:11px;
+    }
+
+    .field-chip input[type="checkbox"]{
+        width:18px;
+        height:18px;
+        accent-color:#ff6fa8;
+        margin:0;
+    }
+
+    .space-memo textarea{
+        min-height:50px;
+        font-size:12px;
+        margin-top:6px;
+    }
+
+    .small-helper{
+        font-size:11px;
+        color:#a66b8b;
+        margin-top:4px;
+    }
+
+    @media (min-width:720px){
+        body{
+            max-width:640px;
+            margin:0 auto;
+        }
+    }
 </style>
 </head>
+
 <body>
+
 <h1>🐰 낭 - 숙제 체크</h1>
 <div class="tag">사용자 ID: 낭 (핑크)</div>
+
 <!-- 오늘의 한마디 -->
 <div class="card">
-<div class="section-title">📌 오늘의 한마디</div>
-<div class="input-small-label">🥕 관리자 → 사용자</div>
-<div id="adminMessageBox"
-style="white-space:pre-line;padding:8px;border-radius:10px;border:1px solid #ffd1e6;background:#fff5fb;font-size:13px;">
-(관리자가 아직 메시지를 남기지 않았어요)
+    <div class="section-title">📌 오늘의 한마디</div>
+
+    <div class="input-small-label">🥕 관리자 → 낭</div>
+    <div id="adminMessageBox"
+         style="white-space:pre-line; padding:8px; border-radius:10px; border:1px solid #ffcfe4; background:#ffeef7; font-size:13px;">
+        (관리자가 아직 메시지를 남기지 않았어요)
+    </div>
+
+    <div style="height:10px;"></div>
+
+    <div class="input-small-label">🐰 낭 → 관리자</div>
+    <textarea id="userMessage" placeholder="오늘 하고 싶은 말을 적어주세요"></textarea>
+    <div style="margin-top:6px; text-align:right;">
+        <button class="btn-save" onclick="saveUserMessage()">저장</button>
+    </div>
 </div>
-<div style="height:10px;"></div>
-<div class="input-small-label">🐰 낭 → 관리자</div>
-<textarea id="userMessage" placeholder="오늘 하고 싶은 말을 적어주세요"></textarea>
-<div style="margin-top:6px; text-align:right;">
-<button class="btn-sub" onclick="saveUserMessage()">저장</button>
-</div>
-</div>
+
 <!-- 오늘의 숙제 요약 (읽기 전용) -->
 <div class="card">
-<div class="section-title">📊 오늘의 숙제 요약</div>
-<table class="summary-table">
-<tr>
-<th></th>
-<th>역팬</th>
-<th>방셀</th>
-<th>숙제</th>
-<th>사진</th>
-<th>움짤</th>
-</tr>
-<tr>
-<td class="summary-label-cell">오늘</td>
-<td class="value-cell" id="today-역팬">0</td>
-<td class="value-cell" id="today-방셀">0</td>
-<td class="value-cell" id="today-숙제">0</td>
-<td class="value-cell" id="today-사진">0</td>
-<td class="value-cell" id="today-움짤">0</td>
-</tr>
-</table>
+    <div class="section-title">📊 오늘의 숙제 요약</div>
+    <table class="summary-table">
+        <tr>
+            <th></th>
+            <th>역팬</th>
+            <th>방셀</th>
+            <th>숙제</th>
+            <th>사진</th>
+            <th>움짤</th>
+        </tr>
+        <tr>
+            <td class="summary-label-cell">오늘</td>
+            <td id="today-역팬">0</td>
+            <td id="today-방셀">0</td>
+            <td id="today-숙제">0</td>
+            <td id="today-사진">0</td>
+            <td id="today-움짤">0</td>
+        </tr>
+    </table>
 </div>
+
 <!-- 누적 숙제 요약 (읽기 전용) -->
 <div class="card">
-<div class="section-title">📊 누적 숙제 요약</div>
-<table class="summary-table">
-<tr>
-<th></th>
-<th>역팬</th>
-<th>방셀</th>
-<th>숙제</th>
-<th>사진</th>
-<th>움짤</th>
-</tr>
-<tr>
-<td class="summary-label-cell">누적</td>
-<td class="value-cell" id="total-역팬">0</td>
-<td class="value-cell" id="total-방셀">0</td>
-<td class="value-cell" id="total-숙제">0</td>
-<td class="value-cell" id="total-사진">0</td>
-<td class="value-cell" id="total-움짤">0</td>
-</tr>
-</table>
+    <div class="section-title">📊 누적 숙제 요약</div>
+    <table class="summary-table">
+        <tr>
+            <th></th>
+            <th>역팬</th>
+            <th>방셀</th>
+            <th>숙제</th>
+            <th>사진</th>
+            <th>움짤</th>
+        </tr>
+        <tr>
+            <td class="summary-label-cell">누적</td>
+            <td id="total-역팬">0</td>
+            <td id="total-방셀">0</td>
+            <td id="total-숙제">0</td>
+            <td id="total-사진">0</td>
+            <td id="total-움짤">0</td>
+        </tr>
+    </table>
 </div>
+
 <!-- 숙제 카드 목록 -->
 <div class="card">
-<div class="section-title">📦 숙제 카드</div>
-<div class="small-helper">체크와 메모는 자유롭게 수정해도 돼요.</div>
-<div id="spacesContainer"></div>
+    <div class="section-title">📦 숙제 카드</div>
+    <div class="small-helper">체크하고 메모를 남길 수 있어요. 완료된 카드는 삭제할 수 있어요.</div>
+    <div id="spacesContainer"></div>
 </div>
+
 <script>
-/* Firebase 초기화 (Admin과 동일 설정 사용) */
+/* Firebase 초기화 */
 const firebaseConfig = {
-apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
-authDomain: "daily-checklist-91e5a.firebaseapp.com",
-projectId: "daily-checklist-91e5a",
-storageBucket: "daily-checklist-91e5a.firebasestorage.app",
-messagingSenderId: "66394691958",
-appId: "1:66394691958:web:cf91f295456a2e10d18257",
-measurementId: "G-87WK4N4EGH"
+    apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
+    authDomain: "daily-checklist-91e5a.firebaseapp.com",
+    projectId: "daily-checklist-91e5a",
+    storageBucket: "daily-checklist-91e5a.firebasestorage.app",
+    messagingSenderId: "66394691958",
+    appId: "1:66394691958:web:cf91f295456a2e10d18257",
+    measurementId: "G-87WK4N4EGH"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
 /* 참조 */
 const todayMessagesRef = db.collection("today").doc("messages");
-const summaryTodayRef = db.collection("summary").doc("today");
-const summaryTotalRef = db.collection("summary").doc("total");
-const configRef = db.collection("config").doc("checklist");
-const spacesRef = db.collection("spaces");
+const summaryTodayRef  = db.collection("summary").doc("today");
+const summaryTotalRef  = db.collection("summary").doc("total");
+const configRef        = db.collection("config").doc("checklist");
+const spacesRef        = db.collection("spaces");
+
 /* 상태 */
 const statNames = ["역팬","방셀","숙제","사진","움짤"];
 let fields = [];
 let spacesData = [];
-/* -------- 오늘의 한마디 -------- */
-todayMessagesRef.onSnapshot(doc => {
-if (!doc.exists) return;
-const data = doc.data() || {};
-document.getElementById("adminMessageBox").innerText =
-data.adminMessage || "(관리자가 아직 메시지를 남기지 않았어요)";
-document.getElementById("userMessage").value =
-data.userMessage || "";
+
+/* 기본 summary */
+const emptySummary = {
+    "역팬":0,"방셀":0,"숙제":0,"사진":0,"움짤":0
+};
+
+/* 오늘의 한마디 실시간 */
+todayMessagesRef.onSnapshot(doc=>{
+    if(!doc.exists){
+        todayMessagesRef.set({
+            adminMessage:"",
+            userMessage:"",
+            date:new Date().toISOString()
+        },{merge:true});
+        return;
+    }
+    const data = doc.data();
+    document.getElementById("adminMessageBox").innerText =
+        data.adminMessage || "(관리자가 아직 메시지를 남기지 않았어요)";
+    document.getElementById("userMessage").value = data.userMessage || "";
 });
+
+/* 오늘 요약 */
+summaryTodayRef.onSnapshot(doc=>{
+    if(!doc.exists){
+        summaryTodayRef.set(emptySummary,{merge:true});
+        return;
+    }
+    const data = doc.data();
+    statNames.forEach(name=>{
+        const el = document.getElementById("today-"+name);
+        if(el) el.textContent = data[name] ?? 0;
+    });
+});
+
+/* 누적 요약 */
+summaryTotalRef.onSnapshot(doc=>{
+    if(!doc.exists){
+        summaryTotalRef.set(emptySummary,{merge:true});
+        return;
+    }
+    const data = doc.data();
+    statNames.forEach(name=>{
+        const el = document.getElementById("total-"+name);
+        if(el) el.textContent = data[name] ?? 0;
+    });
+});
+
+/* 항목 목록 */
+configRef.onSnapshot(doc=>{
+    if(!doc.exists){
+        configRef.set({fields:[]});
+        return;
+    }
+    fields = doc.data().fields || [];
+    renderSpaces();
+});
+
+/* spaces 실시간 */
+spacesRef.onSnapshot(snapshot=>{
+    spacesData = snapshot.docs.map(d=>({id:d.id, ...d.data()}));
+    renderSpaces();
+});
+
+/* 사용자 메시지 저장 */
 function saveUserMessage(){
-const msg = document.getElementById("userMessage").value;
-todayMessagesRef.set({
-userMessage: msg,
-date: new Date().toISOString()
-}, { merge:true })
-.then(()=>alert("메시지를 저장했어요!"))
-.catch(()=>alert("저장 중 문제가 생겼어요."));
+    const msg = document.getElementById("userMessage").value;
+    todayMessagesRef.set({
+        userMessage:msg,
+        date:new Date().toISOString()
+    },{merge:true})
+    .then(()=>alert("메시지를 저장했어요."))
+    .catch(()=>alert("저장 중 오류가 발생했어요."));
 }
-/* -------- 요약(오늘) 읽기 전용 -------- */
-summaryTodayRef.onSnapshot(doc => {
-if (!doc.exists) return;
-const data = doc.data() || {};
-statNames.forEach(name => {
-const el = document.getElementById("today-" + name);
-if (el) el.innerText = data[name] ?? 0;
-});
-});
-/* -------- 요약(누적) 읽기 전용 -------- */
-summaryTotalRef.onSnapshot(doc => {
-if (!doc.exists) return;
-const data = doc.data() || {};
-statNames.forEach(name => {
-const el = document.getElementById("total-" + name);
-if (el) el.innerText = data[name] ?? 0;
-});
-});
-/* -------- 항목/스페이스 실시간 -------- */
-configRef.onSnapshot(doc => {
-if (!doc.exists) return;
-fields = doc.data().fields || [];
-renderSpaces();
-});
-spacesRef.onSnapshot(snapshot => {
-spacesData = snapshot.docs.map(d => ({ id:d.id, ...d.data() }));
-renderSpaces();
-});
-/* -------- 아이디 복사 -------- */
+
+/* ID 복사 */
 function copyUserId(value){
-if (!value) return;
-if (navigator.clipboard && navigator.clipboard.writeText) {
-navigator.clipboard.writeText(value)
-.then(()=>alert("아이디를 복사했어요: " + value))
-.catch(()=>alert("복사 중 문제가 생겼어요. 직접 복사해 주세요."));
-} else {
-alert("이 브라우저에서는 자동 복사가 지원되지 않습니다. 직접 복사해 주세요.");
+    if(!value) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(value)
+            .then(()=>alert("아이디를 복사했어요: "+value))
+            .catch(()=>alert("복사 중 문제가 생겼어요. 직접 복사해 주세요."));
+    }else{
+        alert("이 브라우저에서는 자동 복사가 지원되지 않습니다. 직접 복사해 주세요.");
+    }
 }
-}
-/* -------- 체크 / 메모 업데이트 -------- */
+
+/* 체크 업데이트 */
 function updateSpaceCheck(docId, field, checked){
-spacesRef.doc(docId).update({
-["checks."+field]: checked
-}).catch(()=>alert("체크 저장 중 오류가 발생했어요."));
+    spacesRef.doc(docId).update({
+        ["checks."+field]:checked
+    }).catch(()=>alert("체크 저장 중 오류가 발생했어요."));
 }
+
+/* 메모 업데이트 */
 function updateSpaceMemo(docId, value){
-spacesRef.doc(docId).update({
-memo: value
-}).catch(()=>alert("메모 저장 중 오류가 발생했어요."));
+    spacesRef.doc(docId).update({
+        memo:value
+    }).catch(()=>alert("메모 저장 중 오류가 발생했어요."));
 }
-/* -------- 숙제 카드 렌더링 -------- */
-function renderSpaces(){
-const container = document.getElementById("spacesContainer");
-container.innerHTML = "";
-if (!spacesData.length){
-container.innerHTML = '<div class="small-helper">아직 등록된 숙제 대상이 없습니다.</div>';
-return;
-}
-spacesData.forEach(item => {
-const checks = item.checks || {};
-const card = document.createElement("div");
-card.className = "space-card";
-card.innerHTML = `
-<div class="space-header" style="display:flex; justify-content:space-between; align-items:center;">
-<div>
-<div class="badge-nick">닉네임: ${item.nickname || ""}</div>
-<div class="badge-id" style="margin-top:4px;">
-<span>아이디: ${item.userid || ""}</span>
-<button type="button" onclick="copyUserId('${item.userid || ""}')">복사</button>
-</div>
-</div>
-<!-- ★★★ 유저용 삭제 버튼 ★★★ -->
-<button
-type="button"
-onclick="deleteSpace('${item.id}')"
-style="
-background:#ffb3d4;
-color:white;
-font-size:11px;
-padding:5px 10px;
-border-radius:999px;
-border:none;
-">
-삭제
-</button>
-</div>
-<div class="space-fields">
-${fields.map(name => `
-<div class="field-chip">
-<input type="checkbox"
-${checks[name] ? "checked" : ""}
-onchange="updateSpaceCheck('${item.id}','${name}',this.checked)">
-<span>${name}</span>
-</div>
-`).join("")}
-</div>
-<div class="space-memo">
-<div class="input-small-label">메모</div>
-<textarea
-onchange="updateSpaceMemo('${item.id}',this.value)">${item.memo || ""}</textarea>
-</div>
-`;
-<div class="space-fields">
-${fields.map(name => `
-<div class="field-chip">
-<input type="checkbox"
-${checks[name] ? "checked" : ""}
-onchange="updateSpaceCheck('${item.id}','${name}',this.checked)">
-<span>${name}</span>
-</div>
-`).join("")}
-</div>
-<div class="space-memo">
-<div class="input-small-label">메모</div>
-<textarea
-onchange="updateSpaceMemo('${item.id}',this.value)">${item.memo || ""}</textarea>
-</div>
-`;
-container.appendChild(card);
-});
-}function deleteSpace(docId){
-    if(!confirm("이 숙제를 완료하셨나요?")) return;
+
+/* 카드 삭제 (유저용) */
+function deleteSpace(docId){
+    if(!confirm("이 숙제 카드를 삭제할까요?")) return;
     spacesRef.doc(docId).delete()
         .catch(()=>alert("삭제 중 오류가 발생했어요."));
 }
+
+/* 카드 렌더링 */
+function renderSpaces(){
+    const container = document.getElementById("spacesContainer");
+    container.innerHTML = "";
+
+    if(!spacesData.length){
+        container.innerHTML = '<div class="small-helper">아직 등록된 숙제 카드가 없어요.</div>';
+        return;
+    }
+
+    spacesData.forEach(item=>{
+        const checks = item.checks || {};
+        const card = document.createElement("div");
+        card.className = "space-card";
+
+        card.innerHTML = `
+            <div class="space-header">
+                <div>
+                    <div class="badge-nick">닉네임: ${item.nickname || ""}</div>
+                    <div class="badge-id">
+                        <span>아이디: ${item.userid || ""}</span>
+                        <button type="button" onclick="copyUserId('${item.userid || ""}')">복사</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-delete-card" onclick="deleteSpace('${item.id}')">
+                    🥕 삭제
+                </button>
+            </div>
+            <div class="space-fields">
+                ${fields.map(name=>`
+                    <div class="field-chip">
+                        <input type="checkbox"
+                               ${checks[name] ? "checked" : ""}
+                               onchange="updateSpaceCheck('${item.id}','${name}',this.checked)">
+                        <span>${name}</span>
+                    </div>
+                `).join("")}
+            </div>
+            <div class="space-memo">
+                <div class="input-small-label">메모</div>
+                <textarea onchange="updateSpaceMemo('${item.id}',this.value)">${item.memo || ""}</textarea>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
 </script>
+
 </body>
 </html>
