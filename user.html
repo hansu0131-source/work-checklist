@@ -10,94 +10,157 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <style>
+    * { box-sizing: border-box; }
+
     body {
-        background: #FFE9F4; /* 단색 핑크 */
-        font-family: Pretendard, sans-serif;
+        background: #FFE9F4;
+        font-family: -apple-system, BlinkMacSystemFont, "Pretendard", system-ui, sans-serif;
         margin: 0;
-        padding: 20px;
+        padding: 16px;
+        color: #854a67;
     }
 
     h1 {
         text-align: center;
         color: #ff6fa8;
-        margin-bottom: 5px;
+        margin: 0 0 6px 0;
+        font-size: 22px;
     }
 
     .tag {
         text-align: center;
-        font-size: 13px;
-        color: #fff;
+        font-size: 12px;
+        color: white;
         background: #ff9ac5;
         padding: 4px 12px;
         border-radius: 999px;
         display: inline-block;
         margin-left: 50%;
         transform: translateX(-50%);
-        margin-bottom: 18px;
+        margin-bottom: 14px;
     }
 
-    .box {
-        background: white;
+    .card {
+        background: #ffffff;
         padding: 12px;
-        border-radius: 12px;
-        box-shadow: 0 3px 12px rgba(255,140,170,0.25);
-        margin-bottom: 20px;
+        border-radius: 14px;
+        box-shadow: 0 3px 10px rgba(255,150,170,0.22);
+        margin-bottom: 16px;
     }
 
     .section-title {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
+        margin-bottom: 8px;
         color: #ff6fa8;
-        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     textarea {
         width: 100%;
         min-height: 70px;
-        border-radius: 8px;
-        border: 1px solid #ffc9dd;
-        padding: 10px;
-        resize: vertical;
-        background: #fff;
-        font-family: inherit;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 3px 12px rgba(255,140,170,0.25);
-    }
-
-    th {
-        background: #ff9ac5;
+        border-radius: 10px;
+        border: 1px solid #ffbdd6;
         padding: 8px;
+        resize: vertical;
+        font-size: 13px;
+        background: #fff8fc;
+    }
+
+    button {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 999px;
+        background: #ff6fa8;
         color: white;
         font-weight: 600;
-        text-align: center;
+        cursor: pointer;
+        font-size: 13px;
     }
 
-    td {
-        border-bottom: 1px solid #ffc9dd;
-        padding: 6px;
-        text-align: center;
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-top: 4px;
     }
 
-    input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
+    .summary-table th,
+    .summary-table td {
+        border: 1px solid #ffd2e5;
+        padding: 4px 6px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .summary-table th {
+        background: #ffe0f0;
+        font-weight: 600;
+        color: #b64d7a;
+    }
+
+    .summary-label-cell {
+        background: #fff3fa;
+        font-weight: 600;
+    }
+
+    .space-card {
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #fff7fb;
+        border: 1px solid #ffd6e9;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .badge-nick {
+        font-size: 14px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #ffd4e7;
+        color: #a2466b;
+    }
+
+    .badge-id {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #ffeaf4;
+        color: #c25683;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top:4px;
+    }
+
+    .field-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #ffe6f2;
+        font-size: 12px;
+    }
+
+    .field-chip input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
         accent-color: #ff6fa8;
+        margin: 0;
     }
 
-    .readonly-box {
-        border-radius: 8px;
-        border: 1px solid #ffc9dd;
-        padding: 6px;
-        background: #fff6fb;
-        width: 90%;
-        text-align: center;
+    .input-small-label {
+        font-size:11px;
+        color:#a7638b;
+        margin-bottom:4px;
+    }
+
+    @media (min-width:720px){
+        body { max-width:640px; margin:0 auto; }
     }
 </style>
 </head>
@@ -107,33 +170,79 @@
 <h1>🐰 낭 - 숙제 체크</h1>
 <div class="tag">사용자 ID: 낭 (핑크)</div>
 
-<!-- 🥕 관리자 → 사용자 메시지 -->
-<div class="box">
-    <div class="section-title">🥕 관리자 한마디</div>
-    <div id="adminMessageBox" style="white-space:pre-line; padding:10px; background:#fff0f7; border-radius:8px; border:1px solid #ffc9dd;">
-        (아직 관리자가 메시지를 남기지 않았습니다)
+<!-- 오늘의 한마디 -->
+<div class="card">
+    <div class="section-title">📌 오늘의 한마디</div>
+
+    <div class="input-small-label">🥕 관리자 → 낭</div>
+    <div id="adminMessageBox" style="white-space:pre-line; border:1px solid #ffd2e3; background:#fff4fa; padding:8px; border-radius:10px; min-height:40px;">
+        (관리자가 아직 메시지를 남기지 않았어요)
+    </div>
+
+    <div style="height:10px;"></div>
+
+    <div class="input-small-label">🐰 낭 → 관리자</div>
+    <textarea id="userMessage" placeholder="오늘 하고 싶은 말을 적어주세요"></textarea>
+    <div style="text-align:right; margin-top:6px;">
+        <button onclick="saveUserMessage()">저장</button>
     </div>
 </div>
 
-<!-- 🐰 사용자 → 관리자 메시지 -->
-<div class="box">
-    <div class="section-title">🐰 오늘의 한마디 (사용자가 관리자에게)</div>
-    <textarea id="userMessage" placeholder="관리자에게 남기고 싶은 말"></textarea>
-    <button onclick="saveUserMessage()" style="
-        margin-top:10px; padding:8px 14px;
-        border:none; border-radius:8px;
-        background:#ff6fa8; color:white; font-weight:600; cursor:pointer;
-    ">저장</button>
+<!-- 요약(오늘 + 누적) -->
+<div class="card">
+    <div class="section-title">📊 오늘의 숙제 요약</div>
+
+    <table class="summary-table">
+        <tr>
+            <th></th>
+            <th>역팬</th>
+            <th>방셀</th>
+            <th>숙제</th>
+            <th>사진</th>
+            <th>움짤</th>
+        </tr>
+        <tr>
+            <td class="summary-label-cell">오늘</td>
+            <td id="today-역팬">0</td>
+            <td id="today-방셀">0</td>
+            <td id="today-숙제">0</td>
+            <td id="today-사진">0</td>
+            <td id="today-움짤">0</td>
+        </tr>
+    </table>
 </div>
 
-<!-- 체크리스트 테이블 -->
-<table id="table">
-    <thead id="thead"></thead>
-    <tbody id="tbody"></tbody>
-</table>
+<div class="card">
+    <div class="section-title">📊 누적 숙제 요약</div>
+
+    <table class="summary-table">
+        <tr>
+            <th></th>
+            <th>역팬</th>
+            <th>방셀</th>
+            <th>숙제</th>
+            <th>사진</th>
+            <th>움짤</th>
+        </tr>
+        <tr>
+            <td class="summary-label-cell">누적</td>
+            <td id="total-역팬">0</td>
+            <td id="total-방셀">0</td>
+            <td id="total-숙제">0</td>
+            <td id="total-사진">0</td>
+            <td id="total-움짤">0</td>
+        </tr>
+    </table>
+</div>
+
+<!-- 숙제 카드 목록 -->
+<div class="card">
+    <div class="section-title">📦 숙제 카드</div>
+    <div id="spacesContainer"></div>
+</div>
 
 <script>
-/* Firebase Setup */
+/* Firebase 초기화 */
 const firebaseConfig = {
     apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
     authDomain: "daily-checklist-91e5a.firebaseapp.com",
@@ -146,90 +255,119 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+/* 참조 */
+const todayRef = db.collection("today").doc("messages");
+const summaryTodayRef = db.collection("summary").doc("today");
+const summaryTotalRef = db.collection("summary").doc("total");
 const configRef = db.collection("config").doc("checklist");
 const spacesRef = db.collection("spaces");
-const todayRef = db.collection("today").doc("messages");
 
+/* 항목 목록 */
 let fields = [];
 
-/* 관리자 메시지 실시간 반영 */
+/* 오늘의 한마디 실시간 */
 todayRef.onSnapshot(doc => {
     if (doc.exists) {
         document.getElementById("adminMessageBox").innerText =
-            doc.data().adminMessage || "(아직 관리자가 메시지를 남기지 않았습니다)";
+            doc.data().adminMessage || "(관리자가 아직 메시지를 남기지 않았어요)";
     }
 });
 
 /* 사용자 메시지 저장 */
 function saveUserMessage() {
     const msg = document.getElementById("userMessage").value;
-    todayRef.set(
-        { userMessage: msg, date: new Date().toISOString() },
-        { merge: true }
-    );
+    todayRef.set({
+        userMessage: msg,
+        date: new Date().toISOString()
+    }, { merge: true }).then(() => {
+        alert("오늘의 한마디를 보냈어요! 🐰");
+    });
 }
 
-/* 항목 실시간 */
-configRef.onSnapshot(doc => {
+/* 요약 - 오늘 */
+summaryTodayRef.onSnapshot(doc => {
     if (!doc.exists) return;
-    fields = doc.data().fields;
-    renderTable();
+    const data = doc.data();
+    ["역팬","방셀","숙제","사진","움짤"].forEach(name=>{
+        document.getElementById("today-"+name).innerText = data[name] ?? 0;
+    });
 });
 
-/* 행 실시간 */
-spacesRef.onSnapshot(() => renderTable());
+/* 요약 - 누적 */
+summaryTotalRef.onSnapshot(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    ["역팬","방셀","숙제","사진","움짤"].forEach(name=>{
+        document.getElementById("total-"+name).innerText = data[name] ?? 0;
+    });
+});
 
-/* 테이블 렌더링 */
-function renderTable() {
-    const thead = document.getElementById("thead");
-    const tbody = document.getElementById("tbody");
+/* 항목 받아오기 */
+configRef.onSnapshot(doc => {
+    if (!doc.exists) return;
+    fields = doc.data().fields || [];
+    renderSpaces();
+});
 
-    thead.innerHTML = `
-        <tr>
-            <th>닉네임</th>
-            <th>아이디</th>
-            ${fields.map(f => `<th>${f}</th>`).join("")}
-            <th>메모</th>
-        </tr>
-    `;
+/* spaces 받아오기 */
+spacesRef.onSnapshot(snapshot => {
+    const list = snapshot.docs.map(doc=>({ id:doc.id, ...doc.data() }));
+    renderSpaces(list);
+});
 
-    tbody.innerHTML = "";
-
-    spacesRef.get().then(res => {
-        res.forEach(doc => {
-            const data = doc.data();
-            const checks = data.checks || {};
-
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <td><div class="readonly-box">${data.nickname}</div></td>
-                <td><div class="readonly-box">${data.userid}</div></td>
-
-                ${fields.map(f => `
-                    <td>
-                        <input type="checkbox"
-                            ${checks[f] ? "checked" : ""}
-                            onchange="updateCheck('${doc.id}', '${f}', this.checked)">
-                    </td>
-                `).join("")}
-
-                <td><textarea onchange="update('${doc.id}', 'memo', this.value)">${data.memo || ""}</textarea></td>
-            `;
-
-            tbody.appendChild(row);
-        });
+/* 체크 업데이트 */
+function updateCheck(id, field, value) {
+    spacesRef.doc(id).update({
+        ["checks."+field]: value
     });
 }
 
 /* 메모 업데이트 */
-function update(id, field, value) {
-    spacesRef.doc(id).update({ [field]: value });
+function updateMemo(id, value) {
+    spacesRef.doc(id).update({ memo:value });
 }
 
-/* 체크박스 업데이트 */
-function updateCheck(id, field, value) {
-    spacesRef.doc(id).update({ [`checks.${field}`]: value });
+/* 체크카드 렌더링 */
+function renderSpaces(data=[]) {
+    const container = document.getElementById("spacesContainer");
+    container.innerHTML = "";
+
+    if (!data.length) {
+        container.innerHTML = '<div style="font-size:12px; color:#b37a99;">아직 추가된 숙제가 없어요.</div>';
+        return;
+    }
+
+    data.forEach(item => {
+        const checks = item.checks || {};
+
+        const card = document.createElement("div");
+        card.className = "space-card";
+
+        card.innerHTML = `
+            <div class="badge-nick">닉네임: ${item.nickname}</div>
+            <div class="badge-id">아이디: ${item.userid}</div>
+
+            <div style="height:8px;"></div>
+
+            <div>
+                ${fields.map(name => `
+                    <div class="field-chip">
+                        <input type="checkbox"
+                            ${checks[name] ? "checked" : ""}
+                            onchange="updateCheck('${item.id}', '${name}', this.checked)">
+                        <span>${name}</span>
+                    </div>
+                `).join("")}
+            </div>
+
+            <div style="height:8px;"></div>
+
+            <div class="input-small-label">메모</div>
+            <textarea onchange="updateMemo('${item.id}', this.value)">${item.memo||""}</textarea>
+        `;
+
+        container.appendChild(card);
+    });
 }
 </script>
 
