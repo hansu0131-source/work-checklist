@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🥕 당 - 숙제 관리자</title>
 
-<!-- Firebase compat SDK -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <style>
     body {
-        background: linear-gradient(180deg, #ffe9d4 0%, #fff8f0 100%);
+        background: #FFF5E8;
         font-family: Pretendard, sans-serif;
         margin: 0;
         padding: 20px;
@@ -20,7 +20,7 @@
     h1 {
         text-align: center;
         color: #ff8a3c;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .tag {
@@ -31,9 +31,42 @@
         padding: 4px 12px;
         border-radius: 999px;
         display: inline-block;
-        margin-bottom: 20px;
         margin-left: 50%;
         transform: translateX(-50%);
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #ff8a3c;
+        margin-top: 20px;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 70px;
+        border-radius: 8px;
+        border: 1px solid #ffcfac;
+        padding: 10px;
+        resize: vertical;
+        font-family: inherit;
+        background: #fff;
+    }
+
+    .box {
+        background: white;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(255,150,95,0.2);
+        margin-bottom: 25px;
+    }
+
+    .add-box {
+        margin: 10px 0 20px 0;
+        display: flex;
+        gap: 10px;
     }
 
     table {
@@ -42,20 +75,20 @@
         background: #ffffff;
         border-radius: 14px;
         overflow: hidden;
-        box-shadow: 0 3px 10px rgba(255, 150, 95, 0.25);
-        margin-top: 20px;
+        box-shadow: 0 3px 12px rgba(255,150,95,0.25);
     }
 
     th {
         background: #ffb37a;
-        padding: 10px;
-        color: white;
+        padding: 8px;
+        color: #fff;
         font-weight: 600;
+        text-align: center;
     }
 
     td {
         border-bottom: 1px solid #ffe1cc;
-        padding: 10px;
+        padding: 6px;
         text-align: center;
     }
 
@@ -66,19 +99,14 @@
         width: 90%;
     }
 
-    textarea {
-        width: 95%;
-        border-radius: 8px;
-        border: 1px solid #ffd1a4;
-        padding: 6px;
-        resize: vertical;
-        min-height: 50px;
-    }
-
-    .add-box {
-        display: flex;
-        gap: 10px;
-        margin: 10px 0;
+    .delete-btn {
+        background: #ffe1cc;
+        border: none;
+        color: #ff6b3b;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
     }
 
     button {
@@ -87,16 +115,10 @@
         border-radius: 10px;
         background: #ff8a3c;
         color: white;
-        cursor: pointer;
         font-weight: 600;
+        cursor: pointer;
     }
 
-    .delete-btn {
-        background: #ffe1cc;
-        color: #ff6b3b;
-        padding: 6px 10px;
-        font-size: 12px;
-    }
 </style>
 </head>
 
@@ -105,17 +127,25 @@
 <h1>🥕 당 - 숙제 관리자</h1>
 <div class="tag">관리자 ID: 당 (주황)</div>
 
+<!-- 오늘의 한마디 -->
+<div class="box">
+    <div class="section-title">🥕 오늘의 한마디 (관리자가 사용자에게)</div>
+    <textarea id="adminMessage" placeholder="사용자에게 남길 메시지"></textarea>
+    <button onclick="saveAdminMessage()">저장</button>
+</div>
+
+<div class="box">
+    <div class="section-title">🐰 사용자 한마디</div>
+    <div id="userMessageBox" style="white-space:pre-line; padding:10px; background:#fff7f2; border-radius:8px; border:1px solid #ffd7c2;">
+        (아직 사용자 메시지가 없습니다)
+    </div>
+</div>
+
 <!-- 항목 추가 -->
+<div class="section-title">📌 항목 관리</div>
 <div class="add-box">
     <input type="text" id="newField" placeholder="새 항목 이름 (예: 방셀)">
     <button onclick="addField()">항목 추가</button>
-</div>
-
-<!-- 행 추가 -->
-<div class="add-box">
-    <input type="text" id="newNick" placeholder="닉네임">
-    <input type="text" id="newID" placeholder="아이디">
-    <button onclick="addRow()">행 추가</button>
 </div>
 
 <table id="table">
@@ -124,7 +154,7 @@
 </table>
 
 <script>
-/* 🔥 Firebase 설정 */
+/* Firebase Setup */
 const firebaseConfig = {
     apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
     authDomain: "daily-checklist-91e5a.firebaseapp.com",
@@ -137,28 +167,76 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* 🔥 Firestore 참조 */
 const configRef = db.collection("config").doc("checklist");
 const spacesRef = db.collection("spaces");
+const todayRef = db.collection("today").doc("messages");
 
 let fields = [];
 
-/* 항목(열) 변화 감지 */
-configRef.onSnapshot(doc => {
-    if (!doc.exists) {
-        configRef.set({ fields: [] });
-        return;
+/* 오늘 한마디 실시간 */
+todayRef.onSnapshot(doc => {
+    if (doc.exists) {
+        document.getElementById("userMessageBox").innerText =
+            doc.data().userMessage || "(아직 사용자 메시지가 없습니다)";
     }
-    fields = doc.data().fields;
-    renderTable();
 });
 
-/* 행(문서) 변화 감지 */
-spacesRef.onSnapshot(() => {
-    renderTable();
+/* 항목 실시간 */
+configRef.onSnapshot(doc => {
+    if (doc.exists) {
+        fields = doc.data().fields;
+        renderTable();
+    }
 });
 
-/* 🔧 테이블 렌더링 */
+/* 행 실시간 */
+spacesRef.onSnapshot(() => renderTable());
+
+/* 관리자 메시지 저장 */
+function saveAdminMessage() {
+    const msg = document.getElementById("adminMessage").value;
+    todayRef.set(
+        { adminMessage: msg, date: new Date().toISOString() },
+        { merge: true }
+    );
+}
+
+/* 항목 추가 */
+function addField() {
+    const newField = document.getElementById("newField").value.trim();
+    if (!newField) return;
+
+    configRef.update({
+        fields: firebase.firestore.FieldValue.arrayUnion(newField)
+    });
+
+    document.getElementById("newField").value = "";
+}
+
+/* 항목 삭제 */
+function deleteField(name) {
+    configRef.update({
+        fields: firebase.firestore.FieldValue.arrayRemove(name)
+    });
+}
+
+/* 행 추가 */
+function addRow() {
+    const nick = prompt("닉네임 입력:");
+    if (!nick) return;
+
+    const uid = prompt("아이디 입력:");
+    if (!uid) return;
+
+    spacesRef.add({
+        nickname: nick,
+        userid: uid,
+        memo: "",
+        checks: {}
+    });
+}
+
+/* 테이블 렌더링 */
 function renderTable() {
     const thead = document.getElementById("thead");
     const tbody = document.getElementById("tbody");
@@ -167,7 +245,7 @@ function renderTable() {
         <tr>
             <th>닉네임</th>
             <th>아이디</th>
-            ${fields.map(f => `<th>${f}</th>`).join("")}
+            ${fields.map(f => `<th>${f} <button class='delete-btn' onclick="deleteField('${f}')">X</button></th>`).join("")}
             <th>메모</th>
             <th>삭제</th>
         </tr>
@@ -183,20 +261,15 @@ function renderTable() {
             const row = document.createElement("tr");
 
             row.innerHTML = `
-                <td><input type="text" value="${data.nickname || ""}" onchange="update('${doc.id}', 'nickname', this.value)"></td>
-                <td><input type="text" value="${data.userid || ""}" onchange="update('${doc.id}', 'userid', this.value)"></td>
-
-                ${fields
-                    .map(f => `
-                        <td>
-                            <input type="checkbox" ${checks[f] ? "checked" : ""}
-                                onchange="updateCheck('${doc.id}', '${f}', this.checked)">
-                        </td>
-                    `)
-                    .join("")}
-
+                <td><input value="${data.nickname}" onchange="update('${doc.id}', 'nickname', this.value)"></td>
+                <td><input value="${data.userid}" onchange="update('${doc.id}', 'userid', this.value)"></td>
+                ${fields.map(f => `
+                    <td>
+                        <input type="checkbox"
+                            ${checks[f] ? "checked" : ""}
+                            onchange="updateCheck('${doc.id}', '${f}', this.checked)">
+                    </td>`).join("")}
                 <td><textarea onchange="update('${doc.id}', 'memo', this.value)">${data.memo || ""}</textarea></td>
-
                 <td><button class="delete-btn" onclick="deleteRow('${doc.id}')">삭제</button></td>
             `;
 
@@ -205,50 +278,19 @@ function renderTable() {
     });
 }
 
-/* 🔧 항목 추가 */
-function addField() {
-    const f = document.getElementById("newField").value.trim();
-    if (!f) return;
-
-    configRef.update({
-        fields: firebase.firestore.FieldValue.arrayUnion(f)
-    });
-
-    document.getElementById("newField").value = "";
+/* 데이터 업데이트 */
+function update(id, field, value) {
+    spacesRef.doc(id).update({ [field]: value });
 }
 
-/* 🔧 행 추가 */
-function addRow() {
-    const nick = document.getElementById("newNick").value.trim();
-    const id = document.getElementById("newID").value.trim();
-    if (!nick || !id) return;
-
-    spacesRef.add({
-        nickname: nick,
-        userid: id,
-        checks: {},
-        memo: ""
-    });
-
-    document.getElementById("newNick").value = "";
-    document.getElementById("newID").value = "";
+/* 체크박스 업데이트 */
+function updateCheck(id, field, value) {
+    spacesRef.doc(id).update({ [`checks.${field}`]: value });
 }
 
-/* 🔧 업데이트 */
-function update(docID, field, value) {
-    spacesRef.doc(docID).update({ [field]: value });
-}
-
-/* 🔧 체크 업데이트 */
-function updateCheck(docID, field, value) {
-    spacesRef.doc(docID).update({
-        [`checks.${field}`]: value
-    });
-}
-
-/* 🔧 행 삭제 */
-function deleteRow(docID) {
-    spacesRef.doc(docID).delete();
+/* 행 삭제 */
+function deleteRow(id) {
+    if (confirm("정말 삭제할까요?")) spacesRef.doc(id).delete();
 }
 </script>
 
