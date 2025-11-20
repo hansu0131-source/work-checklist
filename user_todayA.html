@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐰 낭 - 숙제 체크(A-테이블형)</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<style>
+    body {
+        background: #FFE7F3;
+        font-family: -apple-system,BlinkMacSystemFont,"Pretendard",sans-serif;
+        margin: 0;
+        padding: 16px;
+        color: #493545;
+    }
+
+    h1 {
+        text-align: center;
+        color: #ff6fa8;
+        font-size: 22px;
+        margin: 0 0 6px 0;
+    }
+
+    .tag {
+        text-align: center;
+        background: #ff9ac5;
+        color: #fff;
+        font-size: 12px;
+        padding: 4px 14px;
+        border-radius: 999px;
+        display: inline-block;
+        margin-left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 16px;
+    }
+
+    .card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 3px 12px rgba(255,150,170,0.25);
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #ff6fa8;
+        margin-bottom: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    th, td {
+        border: 1px solid #ffd3e8;
+        padding: 6px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    th {
+        background: #ffd0e4;
+        color: #7a3b56;
+        font-weight: 600;
+    }
+
+    .small-helper {
+        font-size: 11px;
+        color: #a06b86;
+        margin-bottom: 4px;
+    }
+
+    .space-card {
+        background: #fffafd;
+        border: 1px solid #ffd8ec;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+
+    .space-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .badge-nick {
+        background: #ffe2f1;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #7a3b56;
+    }
+
+    .badge-id {
+        background: #fff3fa;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        color: #7a3b56;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 6px;
+    }
+
+    .copy-btn {
+        font-size: 11px;
+        padding: 2px 6px;
+        background: #ffb6d9;
+        color: #fff;
+        border-radius: 999px;
+        border: none;
+    }
+
+    .delete-btn {
+        background: #ffe0ec;
+        color: #d64f93;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: none;
+    }
+
+    .delete-btn::after {
+        content: " 🐰";
+    }
+
+    .field-chip {
+        background: #fff0f8;
+        border-radius: 999px;
+        padding: 4px 8px;
+        margin: 3px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .field-chip input {
+        margin-right: 4px;
+        width: 16px;
+        height: 16px;
+        accent-color: #ff6fa8;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 50px;
+        font-size: 12px;
+        border-radius: 10px;
+        border: 1px solid #ffd1e7;
+        padding: 8px;
+        resize: vertical;
+        background: #fffafa;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🐰 낭 - 숙제 체크</h1>
+<div class="tag">사용자 페이지 (읽기 전용)</div>
+
+<!-- 오늘의 한마디 -->
+<div class="card">
+    <div class="section-title">📌 오늘의 한마디</div>
+    <div id="adminMessageBox"
+         style="white-space:pre-line; padding:10px; border-radius:10px; border:1px solid #ffd3e8; background:#fff8fb;">
+        (관리자가 아직 메시지를 작성하지 않았어요)
+    </div>
+</div>
+
+<!-- 오늘 숙제 요약 -->
+<div class="card">
+    <div class="section-title">🩷 오늘 숙제 요약</div>
+    <table>
+        <tr>
+            <th>역팬</th>
+            <th>방셀</th>
+            <th>숙제</th>
+            <th>움짤</th>
+            <th>사진</th>
+        </tr>
+        <tr id="todayRow"></tr>
+    </table>
+</div>
+
+<!-- 밀린 숙제 -->
+<div class="card">
+    <div class="section-title">🍑 밀린 숙제</div>
+    <table>
+        <tr>
+            <th>역팬</th>
+            <th>방셀</th>
+            <th>숙제</th>
+            <th>움짤</th>
+            <th>사진</th>
+        </tr>
+        <tr id="backlogRow"></tr>
+    </table>
+</div>
+
+<!-- 숙제 카드 목록 -->
+<div class="card">
+    <div class="section-title">📦 숙제 카드</div>
+    <div class="small-helper">읽기 전용이며, 체크만 가능합니다.</div>
+    <div id="spacesContainer"></div>
+</div>
+
+<script>
+/* Firebase */
+const firebaseConfig = {
+    apiKey: "AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
+    authDomain: "daily-checklist-91e5a.firebaseapp.com",
+    projectId: "daily-checklist-91e5a",
+    storageBucket: "daily-checklist-91e5a.firebasestorage.app",
+    messagingSenderId: "66394691958",
+    appId: "1:66394691958:web:cf91f295456a2e10d18257"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* Firestore refs */
+const todayMessagesRef = db.collection("today").doc("messages");
+const summaryTodayRef  = db.collection("summary").doc("today");
+const backlogRef       = db.collection("summary").doc("backlog");
+const spacesRef        = db.collection("spaces");
+
+/* 항목 순서 */
+const order = ["역팬","방셀","숙제","움짤","사진"];
+
+/* 오늘의 한마디 */
+todayMessagesRef.onSnapshot(doc=>{
+    const data = doc.data() || {};
+    document.getElementById("adminMessageBox").innerText =
+        data.adminMessage || "(관리자가 아직 메시지를 작성하지 않았어요)";
+});
+
+/* 오늘 숙제 */
+summaryTodayRef.onSnapshot(doc=>{
+    const data = doc.data() || {};
+    const row = document.getElementById("todayRow");
+    row.innerHTML = order.map(k => `<td>${data[k] || 0}</td>`).join("");
+});
+
+/* 밀린 숙제 */
+backlogRef.onSnapshot(doc=>{
+    const data = doc.data() || {};
+    const row = document.getElementById("backlogRow");
+    row.innerHTML = order.map(k => `<td>${data[k] || 0}</td>`).join("");
+});
+
+/* 숙제 카드 */
+spacesRef.onSnapshot(snapshot=>{
+    const container = document.getElementById("spacesContainer");
+    container.innerHTML = "";
+
+    snapshot.forEach(doc=>{
+        const d = doc.data();
+        const checks = d.checks || {};
+
+        const card = document.createElement("div");
+        card.className = "space-card";
+
+        card.innerHTML = `
+            <div class="space-header">
+                <div>
+                    <div class="badge-nick">닉네임: ${d.nickname}</div>
+                    <div class="badge-id">
+                        아이디: ${d.userid}
+                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${d.userid}')">복사</button>
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="db.collection('spaces').doc('${doc.id}').delete()">삭제</button>
+            </div>
+
+            <div>
+                ${order.map(name=>`
+                    <div class="field-chip">
+                        <input type="checkbox" ${checks[name] ? "checked" : ""} disabled>
+                        ${name}
+                    </div>
+                `).join("")}
+            </div>
+
+            <div style="margin-top:6px;">
+                <textarea disabled>${d.memo || ""}</textarea>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+});
+</script>
+
+</body>
+</html>
