@@ -452,7 +452,7 @@ function addSpace(){
     spacesRef.add({
         nickname, userid,
         counts:{}, memo:"", balloon:"",
-        updatedAt:new Date().toISOString()
+        updatedDate: new Date().toISOString().slice(0,10)
     });
 
     document.getElementById("newNick").value="";
@@ -460,7 +460,7 @@ function addSpace(){
 }
 
 /* ============= 카드 목록 ============= */
-spacesRef.orderBy("updatedAt","desc").onSnapshot(ss=>{
+spacesRef.orderBy("updatedDate","desc").onSnapshot(ss=>{
     spacesData=ss.docs.map(d=>({id:d.id,...d.data()}));
     renderSpaces();
 });
@@ -524,13 +524,13 @@ function renderSpaces(){
 function updateCount(id,f,val){
     spacesRef.doc(id).update({
         ["counts."+f]:Number(val||0),
-        updatedAt:new Date().toISOString()
+        updatedDate: new Date().toISOString().slice(0,10)
     });
 }
 function updateField(id,f,val){
     spacesRef.doc(id).update({
         [f]:val,
-        updatedAt:new Date().toISOString()
+        updatedDate: new Date().toISOString().slice(0,10)
     });
 }
 function completeCard(id,nick){
