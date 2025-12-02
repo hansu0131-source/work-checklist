@@ -450,12 +450,9 @@ function addSpace(){
     if(!nickname||!userid) return alert("입력하세요");
 
     spacesRef.add({
-        nickname, 
-        userid,
-        counts:{}, 
-        memo:"", 
-        balloon:"",
-        updatedDate: new Date().toISOString().slice(0,10)
+        nickname, userid,
+        counts:{}, memo:"", balloon:"",
+        updatedAt:new Date().toISOString()
     });
 
     document.getElementById("newNick").value="";
@@ -463,8 +460,8 @@ function addSpace(){
 }
 
 /* ============= 카드 목록 ============= */
-spacesRef.orderBy("updatedDate","desc").onSnapshot(ss=>{
-    spacesData = ss.docs.map(d=>({id:d.id,...d.data()}));
+spacesRef.orderBy("updatedAt","desc").onSnapshot(ss=>{
+    spacesData=ss.docs.map(d=>({id:d.id,...d.data()}));
     renderSpaces();
 });
 
@@ -475,8 +472,8 @@ function renderSpaces(){
     const todayStr=new Date().toISOString().slice(0,10);
 
     spacesData.forEach(item=>{
-        const updated = item.updatedDate || "-";
-        const isToday = (updated === todayStr);
+        const updated=(item.updatedAt||"").slice(0,10);
+        const isToday = updated===todayStr;
 
         let chips="";
         fields.forEach(f=>{
@@ -526,25 +523,16 @@ function renderSpaces(){
 /* 수정 */
 function updateCount(id,f,val){
     spacesRef.doc(id).update({
-        ["counts."+f]: Number(val || 0),
-        updatedDate: new Date().toISOString().slice(0,10)
+        ["counts."+f]:Number(val||0),
+        updatedAt:new Date().toISOString()
     });
 }
-
-function updateMemo(id,val){
+function updateField(id,f,val){
     spacesRef.doc(id).update({
-        memo: val || "",
-        updatedDate: new Date().toISOString().slice(0,10)
+        [f]:val,
+        updatedAt:new Date().toISOString()
     });
 }
-
-function updateBalloon(id,val){
-    spacesRef.doc(id).update({
-        balloon: val || "",
-        updatedDate: new Date().toISOString().slice(0,10)
-    });
-}
-    
 function completeCard(id,nick){
     if(!confirm(`"${nick}" 완료?`)) return;
     spacesRef.doc(id).delete();
