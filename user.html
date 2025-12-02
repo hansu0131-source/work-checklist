@@ -373,7 +373,7 @@ configRef.onSnapshot(doc=>{
    📌 숙제 카드 실시간 구독
    (관리자와 동일한 spaces 컬렉션 사용)
 =========================== */
-spacesRef.orderBy("updatedAt","desc").onSnapshot(ss=>{
+spacesRef.orderBy("updatedDate","desc").onSnapshot(ss=>{
     spacesData = ss.docs.map(d=>({id:d.id, ...d.data()}));
     renderSpaces();
 });
@@ -394,8 +394,7 @@ function renderSpaces(){
 
     spacesData.forEach(item=>{
         const counts=item.counts || {};
-        const updatedRaw = item.updatedAt || "";
-        const updatedDate = updatedRaw.slice(0,10);
+        const updatedDate = item.updatedDate || "-";
         const isToday = (updatedDate === todayStr);
 
         let chipHTML="";
@@ -455,19 +454,19 @@ function renderSpaces(){
 function updateCount(id,f,val){
     spacesRef.doc(id).update({
         ["counts."+f]: Number(val || 0),
-        updatedAt: new Date().toISOString()
+        updatedDate: new Date().toISOString().slice(0,10)
     });
 }
 function updateMemo(id,val){
     spacesRef.doc(id).update({
         memo: val || "",
-        updatedAt: new Date().toISOString()
+        updatedDate: new Date().toISOString().slice(0,10)
     });
 }
 function updateBalloon(id,val){
     spacesRef.doc(id).update({
         balloon: val || "",
-        updatedAt: new Date().toISOString()
+        updatedDate: new Date().toISOString().slice(0,10)
     });
 }
 
