@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥕 당 - 숙제 관리자</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<style>
+* { box-sizing:border-box; }
+
+body {
+    background:#ffe9d1;
+    font-family:-apple-system, BlinkMacSystemFont,"Pretendard",system-ui;
+    margin:0; padding:16px;
+    color:#5a3620;
+}
+@media (min-width:720px){
+    body { max-width:720px; margin:0 auto; }
+}
+
+h1 {
+    text-align:center;
+    font-size:23px;
+    font-weight:800;
+    color:#ff8a2b;
+    margin-bottom:12px;
+}
+
+.tag {
+    display:block;
+    width:max-content;
+    margin:0 auto 20px auto;
+    padding:4px 12px;
+    background:#ff9f50;
+    color:white;
+    border-radius:999px;
+    font-size:12px;
+}
+
+/* CARD */
+.card {
+    background:white;
+    padding:16px;
+    border-radius:16px;
+    margin-bottom:22px;
+    box-shadow:0 3px 10px rgba(255,150,80,0.22);
+}
+
+.section-title {
+    font-size:15px;
+    font-weight:700;
+    color:#ff8a2b;
+    margin-bottom:10px;
+    display:flex; gap:6px; align-items:center;
+}
+
+/* INPUT */
+textarea, input[type="text"], input[type="number"] {
+    width:100%;
+    border-radius:10px;
+    border:1px solid #ffd6b6;
+    padding:8px;
+    background:#fff8f0;
+    font-size:13px;
+}
+
+/* SUMMARY */
+.summary-grid {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+.summary-box {
+    background:#ffe6d2;
+    border-radius:12px;
+    padding:10px;
+    text-align:center;
+}
+.summary-label {
+    font-size:13px; color:#a05b23; margin-bottom:4px;
+}
+.summary-input {
+    font-size:15px;
+    font-weight:700;
+    color:#ff6c10;
+    width:60px;
+    border:none;
+    background:#fff8f0;
+    padding:4px 8px;
+    border-radius:8px;
+    text-align:center;
+}
+
+/* SPACE CARD */
+.space-card {
+    background:#fffdf9;
+    border:2px solid #ffe0c5;
+    padding:14px;
+    border-radius:14px;
+    margin-bottom:18px;
+    transition:0.25s;
+}
+.space-card.glow-today {
+    border-color:#ffb26e;
+    box-shadow:0 0 10px rgba(255,160,80,0.48);
+}
+
+.space-header {
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+}
+
+.badge-nick {
+    padding:4px 10px;
+    background:#ffe3c8;
+    border-radius:999px;
+    font-size:13px;
+    color:#8c4f1d;
+    font-weight:600;
+}
+
+.badge-id{
+    margin-top:4px;
+    padding:4px 8px;
+    background:#fff3e4;
+    border-radius:999px;
+    font-size:11px;
+    color:#a06533;
+    display:inline-flex; gap:6px; align-items:center;
+}
+.badge-id button {
+    padding:2px 6px;
+    border-radius:999px;
+    border:none;
+    background:#ff9a4a;
+    color:white;
+    font-size:10px;
+    cursor:pointer;
+}
+
+/* BUTTONS */
+.admin-btn {
+    background:#ffb26e;
+    color:#7a3c0f;
+    border:none;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:600;
+    box-shadow:0 2px 4px rgba(255,150,70,0.25);
+}
+
+/* CHIP */
+.field-wrap {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+}
+.field-chip {
+    width:80px;
+    background:#fff3e5;
+    border:1px solid #ffd8bb;
+    border-radius:12px;
+    padding:6px 5px;
+    text-align:center;
+    font-size:12px;
+    color:#8c5324;
+}
+.field-chip input {
+    width:50px;
+    margin-top:4px;
+    background:white;
+    border-radius:6px;
+    border:1px solid #ffd2b2;
+    text-align:center;
+    padding:3px;
+    font-size:13px;
+}
+
+/* 항목 pill */
+.pill {
+    display:flex;
+    gap:6px;
+    align-items:center;
+    background:#ffe7cf;
+    padding:4px 10px;
+    border-radius:12px;
+    font-size:13px;
+    color:#7a461e;
+}
+.pill button {
+    padding:4px 8px;
+    background:#ff8a2b;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* Memo */
+.space-memo-row {
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+.space-memo-col { flex:1; }
+.space-memo-col textarea {
+    min-height:90px;
+    background:#fff8f0;
+}
+
+@media (max-width:640px){
+    .space-memo-row { flex-direction:column; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>🥕 당 - 숙제 관리자</h1>
+<div class="tag">관리자 페이지</div>
+
+<!-- 오늘의 한마디 -->
+<div class="card">
+    <div class="section-title">📌 오늘의 한마디</div>
+
+    <div style="font-size:12px; color:#8b5a34;">🥕 관리자 → 낭</div>
+    <textarea id="adminMessage" placeholder="낭에게 전할 말"></textarea>
+
+    <div style="text-align:right; margin-top:8px;">
+        <button class="admin-btn" onclick="saveAdminMessage()">저장</button>
+    </div>
+
+    <div style="height:12px;"></div>
+
+    <div style="font-size:12px; color:#8b5a34;">🐰 낭 → 관리자</div>
+    <div id="userMessageBox"
+         style="white-space:pre-line; padding:10px; background:#fff7ef;
+         border-radius:12px; border:1px solid #ffd6b4; font-size:13px;">
+        (아직 사용자 메시지가 없습니다)
+    </div>
+</div>
+
+<!-- 오늘 숙제 -->
+<div class="card">
+    <div class="section-title" id="todayTitle">📦 오늘 숙제</div>
+    <div id="todaySummary" class="summary-grid"></div>
+
+    <div style="text-align:right; margin-top:10px;">
+        <button class="admin-btn" onclick="saveSummary('today')">저장</button>
+    </div>
+</div>
+
+<!-- 밀린 숙제 -->
+<div class="card">
+    <div class="section-title">📦 밀린 숙제</div>
+    <div id="backSummary" class="summary-grid"></div>
+
+    <div style="text-align:right; margin-top:10px;">
+        <button class="admin-btn" onclick="saveSummary('back')">저장</button>
+    </div>
+</div>
+
+<!-- 항목 관리 -->
+<div class="card">
+    <div class="section-title">📋 항목 관리</div>
+
+    <input type="text" id="newField" placeholder="새 항목 입력">
+    <button class="admin-btn" style="margin-top:8px;" onclick="addField()">추가</button>
+
+    <div id="fieldPills" style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;"></div>
+</div>
+
+<!-- 카드 추가 -->
+<div class="card">
+    <div class="section-title">📋 숙제 카드 추가</div>
+    <input type="text" id="newNick" placeholder="닉네임 입력">
+    <input type="text" id="newID" placeholder="아이디 입력" style="margin-top:8px;">
+
+    <div style="text-align:right; margin-top:10px;">
+        <button class="admin-btn" onclick="addSpace()">추가</button>
+    </div>
+</div>
+
+<!-- 카드 목록 -->
+<div class="card">
+    <div class="section-title">📋 숙제 카드 목록</div>
+    <div id="spacesContainer"></div>
+</div>
+
+
+<script>
+/* Firebase 초기화 */
+firebase.initializeApp({
+    apiKey:"AIzaSyAHmLNi5VOuAE-gXnAg-fEfzylPZvzvfVo",
+    authDomain:"daily-checklist-91e5a.firebaseapp.com",
+    projectId:"daily-checklist-91e5a"
+});
+const db = firebase.firestore();
+
+const messageRef      = db.collection("today").doc("messages");
+const summaryTodayRef = db.collection("summary").doc("today");
+const summaryBackRef  = db.collection("summary").doc("backlog");
+const configRef       = db.collection("config").doc("checklist");
+const spacesRef       = db.collection("spaces");
+
+const summaryKeys = ["배민","방셀","움짤","역팬","정성","사진","합계_배역","영상","합계_움사"];
+
+let fields = [];
+let spacesData = [];
+
+/* 오늘 날짜 자동 표시 */
+(function(){
+    const now = new Date();
+    const m = now.getMonth() + 1;
+    const d = now.getDate();
+    const w = ["일","월","화","수","목","금","토"][now.getDay()];
+    document.getElementById("todayTitle").innerText = `📦 ${m}월 ${d}일(${w}) 숙제`;
+})();
+
+/* SUMMARY UI 생성 */
+function renderSummary(prefix, boxId){
+    const box=document.getElementById(boxId);
+    let html="";
+
+    summaryKeys.forEach(k=>{
+        let label=k;
+        if(k==="합계_배역") label="배민+역팬";
+        if(k==="합계_움사") label="움짤+사진";
+        html += `
+            <div class="summary-box">
+                <div class="summary-label">${label}</div>
+                <input class="summary-input" id="${prefix}-${k}" type="number" value="0">
+            </div>
+        `;
+    });
+
+    box.innerHTML = html;
+}
+renderSummary("today","todaySummary");
+renderSummary("back","backSummary");
+
+/* SUMMARY Snapshot */
+function bindSummary(ref,prefix){
+    ref.onSnapshot(doc=>{
+        const d = doc.data() || {};
+        summaryKeys.forEach(k=>{
+            document.getElementById(`${prefix}-${k}`).value = d[k] ?? 0;
+        });
+    });
+}
+bindSummary(summaryTodayRef,"today");
+bindSummary(summaryBackRef,"back");
+
+/* SUMMARY 저장 */
+function saveSummary(type){
+    const prefix = type === "today" ? "today" : "back";
+    const ref = type === "today" ? summaryTodayRef : summaryBackRef;
+
+    const data={};
+    summaryKeys.forEach(k=>{
+        data[k] = Number(document.getElementById(`${prefix}-${k}`).value || 0);
+    });
+
+    ref.set(data,{merge:true});
+    alert("저장되었습니다.");
+}
+
+/* 메시지 (관리자 ↔ 유저) */
+messageRef.onSnapshot(doc=>{
+    const d = doc.data() || {};
+    document.getElementById("adminMessage").value = d.adminMessage || "";
+    document.getElementById("userMessageBox").innerText =
+        d.userMessage || "(아직 사용자 메시지가 없습니다)";
+});
+
+function saveAdminMessage(){
+    const msg = document.getElementById("adminMessage").value;
+    messageRef.set({adminMessage:msg},{merge:true});
+    alert("저장되었습니다.");
+}
+
+/* 칩 관리 */
+configRef.onSnapshot(doc=>{
+    fields = (doc.data() || {}).fields || [];
+    renderFieldPills();
+    renderSpaces();
+});
+
+function renderFieldPills(){
+    const box=document.getElementById("fieldPills");
+    box.innerHTML = fields.map(f=>`
+        <div class="pill">
+            ${f}
+            <button onclick="deleteField('${f}')">X</button>
+        </div>
+    `).join("");
+}
+
+function addField(){
+    const name=document.getElementById("newField").value.trim();
+    if(!name) return;
+    configRef.set({fields:[...fields,name]},{merge:true});
+    document.getElementById("newField").value="";
+}
+
+function deleteField(f){
+    configRef.set({fields:fields.filter(x=>x!==f)},{merge:true});
+}
+
+/* 카드 추가 */
+function addSpace(){
+    const nickname=document.getElementById("newNick").value.trim();
+    const userid=document.getElementById("newID").value.trim();
+    if(!nickname || !userid) return alert("입력하세요");
+
+    spacesRef.add({
+        nickname,
+        userid,
+        memo:"",
+        balloon:"",
+        counts:{},
+        updatedDate:new Date().toISOString().slice(0,10)
+    });
+
+    document.getElementById("newNick").value="";
+    document.getElementById("newID").value="";
+}
+
+/* 카드 목록 */
+spacesRef.orderBy("updatedDate","desc").onSnapshot(ss=>{
+    spacesData = ss.docs.map(d=>({id:d.id, ...d.data()}));
+    renderSpaces();
+});
+
+function renderSpaces(){
+    const box=document.getElementById("spacesContainer");
+    box.innerHTML="";
+
+    const todayStr = new Date().toISOString().slice(0,10);
+
+    spacesData.forEach(item=>{
+
+        /* 기존 카드 자동 보정 */
+        if(!item.updatedDate && item.updatedAt){
+            item.updatedDate = item.updatedAt.slice(0,10);
+        }
+        if(!item.updatedDate){
+            item.updatedDate = todayStr;
+        }
+
+        const isToday = item.updatedDate === todayStr;
+
+        /* 칩 생성 */
+        const counts=item.counts || {};
+        let chips="";
+        fields.forEach(f=>{
+            const v = counts[f] ?? 0;
+            chips += `
+                <div class="field-chip">
+                    ${f}
+                    <input type="number" value="${v}"
+                        onchange="updateCount('${item.id}','${f}',this.value)">
+                </div>
+            `;
+        });
+
+        box.innerHTML += `
+            <div class="space-card ${isToday?"glow-today":""}">
+                <div class="space-header">
+                    <div>
+                        <div class="badge-nick">${item.nickname}</div>
+                        <div class="badge-id">
+                            아이디: ${item.userid}
+                            <button onclick="copyUserId('${item.userid}')">복사</button>
+                        </div>
+                        <div style="font-size:11px; color:#b47840; margin-top:4px;">
+                            업데이트: ${item.updatedDate}
+                        </div>
+                    </div>
+
+                    <button class="admin-btn"
+                        onclick="deleteCard('${item.id}','${item.nickname}')">완료 🥕</button>
+                </div>
+
+                <div class="field-wrap">${chips}</div>
+
+                <div class="space-memo-row">
+                    <div class="space-memo-col">
+                        <textarea onchange="updateField('${item.id}','memo',this.value)">
+${item.memo || ""}</textarea>
+                    </div>
+                    <div class="space-memo-col">
+                        <textarea onchange="updateField('${item.id}','balloon',this.value)">
+${item.balloon || ""}</textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+/* 업데이트 함수 */
+function updateCount(id,f,val){
+    spacesRef.doc(id).update({
+        ["counts."+f]:Number(val||0),
+        updatedDate:new Date().toISOString().slice(0,10)
+    });
+}
+function updateField(id,f,val){
+    spacesRef.doc(id).update({
+        [f]:val,
+        updatedDate:new Date().toISOString().slice(0,10)
+    });
+}
+
+/* 삭제 */
+function deleteCard(id,nick){
+    if(!confirm(`${nick} 카드 삭제할까요?`)) return;
+    spacesRef.doc(id).delete();
+}
+
+/* 복사 */
+function copyUserId(v){
+    navigator.clipboard.writeText(v);
+    alert("복사됨: "+v);
+}
+</script>
+
+</body>
+</html>
+
