@@ -347,6 +347,17 @@ configRef.onSnapshot(doc=>{
 /* 카드 로드 */
 spacesRef.orderBy("updatedDate","desc").onSnapshot(ss=>{
     spacesData = ss.docs.map(d=>({id:d.id,...d.data()}));
+        // 🔥 기존 카드 자동 복구
+    spacesData.forEach(item => {
+        if(!item.updatedDate){
+            const converted = (item.updatedAt || new Date().toISOString()).slice(0,10);
+            spacesRef.doc(item.id).set({
+                updatedDate: converted
+            }, {merge:true});
+            item.updatedDate = converted;
+        }
+    });
+
     renderSpaces();
 });
 
